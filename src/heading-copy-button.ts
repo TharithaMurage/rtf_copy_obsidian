@@ -1,10 +1,10 @@
-import { MarkdownPostProcessorContext, Plugin } from "obsidian";
+import { Plugin } from "obsidian";
 import { RtfCopySettings } from "./types";
 import { markdownToHtml } from "./markdown-to-html";
 import { parseSections } from "./section-modal";
 
 export function registerHeadingCopyButtons(plugin: Plugin, settings: RtfCopySettings): void {
-  plugin.registerMarkdownPostProcessor((element: HTMLElement, context: MarkdownPostProcessorContext) => {
+  plugin.registerMarkdownPostProcessor((element: HTMLElement) => {
     const headings = element.querySelectorAll("h1");
     headings.forEach((h1) => {
       if (h1.querySelector(".rtf-copy-btn")) return;

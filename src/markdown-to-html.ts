@@ -9,7 +9,6 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
   const htmlParts: string[] = [];
   let inCodeBlock = false;
   let codeBlockContent: string[] = [];
-  // No list stack needed — we render flat <p> tags for Outlook compatibility
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -17,7 +16,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
     // Fenced code blocks
     if (line.trimStart().startsWith("```")) {
       if (!inCodeBlock) {
-        // flush (no-op for flat rendering)
+  
         inCodeBlock = true;
         codeBlockContent = [];
       } else {
@@ -54,14 +53,14 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
 
     // Horizontal rule
     if (/^-{3,}$/.test(line.trim()) || /^\*{3,}$/.test(line.trim())) {
-      // flush (no-op for flat rendering)
+
       htmlParts.push('<hr style="border:none;border-top:1px solid #ccc;margin:8px 0;">');
       continue;
     }
 
     // Blockquote
     if (line.trimStart().startsWith("> ")) {
-      // flush (no-op for flat rendering)
+
       const quoteText = line.replace(/^>\s?/, "");
       htmlParts.push(
         `<div style="border-left:3px solid #ccc;padding-left:10px;margin:4px 0;color:#555;">${inlineFormat(quoteText)}</div>`
@@ -97,7 +96,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
     // Ordered list
     const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/);
     if (olMatch) {
-      // flush (no-op for flat rendering)
+
       htmlParts.push(
         `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>` +
         `<td style="width:24px;"></td>` +

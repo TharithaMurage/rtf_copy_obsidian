@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Notice, Plugin } from "obsidian";
+import { Editor, Notice, Plugin } from "obsidian";
 import { RtfCopySettings, DEFAULT_SETTINGS } from "./types";
 import { markdownToHtml } from "./markdown-to-html";
 import { parseSections, SectionSuggestModal } from "./section-modal";
