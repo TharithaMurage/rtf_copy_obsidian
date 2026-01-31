@@ -1,0 +1,9 @@
+{
+  "id": "rtf-copy",
+  "name": "RTF Copy",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Copy note sections as rich text for Outlook/Teams with firm-style bullet formatting",
+  "author": "TharithaMurage",
+  "isDesktopOnly": true
+}
