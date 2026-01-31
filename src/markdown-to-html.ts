@@ -41,11 +41,11 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
       continue;
     }
 
-    // Headings (## and below, since H1 is the section boundary)
-    const headingMatch = line.match(/^(#{2,6})\s+(.+)$/);
+    // Headings — H1 lines are skipped (section boundary), H2-H6 are rendered
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
-      // flush (no-op for flat rendering)
       const level = headingMatch[1].length;
+      if (level === 1) continue; // skip H1
       const sizes: Record<number, number> = { 2: settings.fontSize + 4, 3: settings.fontSize + 2, 4: settings.fontSize + 1, 5: settings.fontSize, 6: settings.fontSize };
       const size = sizes[level] || settings.fontSize;
       htmlParts.push(`<p style="font-size:${size}pt;font-weight:bold;margin:8px 0 4px 0;">${inlineFormat(headingMatch[2])}</p>`);
