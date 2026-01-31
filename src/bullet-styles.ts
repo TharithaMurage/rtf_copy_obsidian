@@ -17,9 +17,13 @@ export function injectBulletStyles(settings: RtfCopySettings): void {
 
   if (settings.applyBulletStyleEditor) {
     rules.push(
-      `.cm-s-obsidian .HyperMD-list-line-1 .list-bullet::after { content: "${settings.bulletL1}"; }`,
-      `.cm-s-obsidian .HyperMD-list-line-2 .list-bullet::after { content: "${settings.bulletL2}"; }`,
-      `.cm-s-obsidian .HyperMD-list-line-3 .list-bullet::after { content: "${settings.bulletL3}"; }`
+      // Hide the original bullet character rendered by Obsidian
+      `.cm-s-obsidian .HyperMD-list-line .cm-formatting-list { font-size: 0; line-height: 0; }`,
+      `.cm-s-obsidian .HyperMD-list-line .cm-formatting-list::after { font-size: var(--font-text-size, 16px); line-height: normal; }`,
+      // Set custom bullet per depth
+      `.cm-s-obsidian .HyperMD-list-line-1 .cm-formatting-list::after { content: "${settings.bulletL1} "; }`,
+      `.cm-s-obsidian .HyperMD-list-line-2 .cm-formatting-list::after { content: "${settings.bulletL2} "; }`,
+      `.cm-s-obsidian .HyperMD-list-line-3 .cm-formatting-list::after { content: "${settings.bulletL3} "; }`
     );
   }
 
