@@ -35,9 +35,9 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
       continue;
     }
 
-    // Blank line
+    // Blank line — preserve as spacing to match Obsidian rendering
     if (line.trim() === "") {
-      // flush (no-op for flat rendering)
+      htmlParts.push(`<p style="margin:0;font-size:${settings.fontSize}pt;">&nbsp;</p>`);
       continue;
     }
 
@@ -87,7 +87,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
         htmlParts.push(
           `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>` +
           `<td style="width:${indentPx}px;"></td>` +
-          `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${bullet}&nbsp;${inlineFormat(content)}</td>` +
+          `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;line-height:1.5;">${bullet}&nbsp;${inlineFormat(content)}</td>` +
           `</tr></table>`
         );
       }
@@ -101,7 +101,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
       htmlParts.push(
         `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>` +
         `<td style="width:24px;"></td>` +
-        `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${inlineFormat(olMatch[2])}</td>` +
+        `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;line-height:1.5;">${inlineFormat(olMatch[2])}</td>` +
         `</tr></table>`
       );
       continue;
@@ -122,7 +122,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
   }
 
   const body = htmlParts.join("\n");
-  return `<div style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${body}</div>`;
+  return `<div style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;line-height:1.5;">${body}</div>`;
 }
 
 function parseTable(lines: string[], startIndex: number, settings: RtfCopySettings): { html: string; endIndex: number } {
