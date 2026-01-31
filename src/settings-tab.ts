@@ -93,5 +93,17 @@ export class RtfCopySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })
       );
+
+    containerEl.createEl("h2", { text: "Paste from Outlook" });
+
+    new Setting(containerEl)
+      .setName("Clean paste from Outlook/Word")
+      .setDesc("Automatically convert pasted Office HTML to clean markdown (requires restart to toggle)")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.cleanPasteFromOutlook).onChange(async (v) => {
+          this.plugin.settings.cleanPasteFromOutlook = v;
+          await this.plugin.saveSettings();
+        })
+      );
   }
 }

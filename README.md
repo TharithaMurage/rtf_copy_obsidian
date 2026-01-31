@@ -36,6 +36,12 @@ Bullet styling is applied in both the Obsidian editor (live preview) and reading
 - **Bullets inside table cells** are supported using `<br>` syntax: `- item 1<br>- item 2` renders with proper bullet characters in reading mode and on copy
 - Tables are styled with inline CSS for maximum Outlook compatibility
 
+### Paste from Outlook/Word
+
+Automatically converts pasted Office HTML into clean markdown. When you copy content from Outlook, Word, or Teams and paste it into Obsidian, the plugin intercepts the paste, strips MSO cruft (Office XML namespaces, style blocks, conditional comments), and converts the HTML to proper markdown — including tables, lists, headings, links, and inline formatting.
+
+Only triggers on Office-sourced HTML (detected via MSO classes and Office namespaces). Regular browser pastes are unaffected.
+
 ### Line Spacing
 
 Blank lines in your markdown are preserved as spacing in the rich text output, matching what you see in Obsidian's reading mode. All content uses 1.5 line-height.
@@ -66,6 +72,7 @@ Blank lines in your markdown are preserved as spacing in the rich text output, m
 | L1 / L2 / L3 bullet | `•` / `–` / `◦` | Bullet character per nesting level |
 | Style in editor | On | Apply bullet characters in live preview |
 | Style in reading mode | On | Apply bullet characters in reading mode |
+| Clean paste from Outlook/Word | On | Convert pasted Office HTML to clean markdown |
 
 ## Installation
 

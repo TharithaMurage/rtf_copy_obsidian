@@ -6,6 +6,7 @@ import { injectBulletStyles, removeBulletStyles } from "./bullet-styles";
 import { RtfCopySettingTab } from "./settings-tab";
 import { registerTablePostProcessor } from "./table-post-processor";
 import { registerHeadingCopyButtons } from "./heading-copy-button";
+import { registerPasteHandler } from "./paste-handler";
 
 export default class RtfCopyPlugin extends Plugin {
   settings: RtfCopySettings = DEFAULT_SETTINGS;
@@ -30,6 +31,9 @@ export default class RtfCopyPlugin extends Plugin {
     injectBulletStyles(this.settings);
     registerTablePostProcessor(this, this.settings);
     registerHeadingCopyButtons(this, this.settings);
+    if (this.settings.cleanPasteFromOutlook) {
+      registerPasteHandler(this);
+    }
   }
 
   onunload(): void {

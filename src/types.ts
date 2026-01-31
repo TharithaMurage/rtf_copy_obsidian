@@ -7,6 +7,7 @@ export interface RtfCopySettings {
   bulletL3: string;
   applyBulletStyleEditor: boolean;
   applyBulletStyleReading: boolean;
+  cleanPasteFromOutlook: boolean;
 }
 
 export const DEFAULT_SETTINGS: RtfCopySettings = {
@@ -18,4 +19,5 @@ export const DEFAULT_SETTINGS: RtfCopySettings = {
   bulletL3: "\u25E6", // ◦
   applyBulletStyleEditor: true,
   applyBulletStyleReading: true,
+  cleanPasteFromOutlook: true,
 };
