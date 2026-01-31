@@ -69,7 +69,7 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
       continue;
     }
 
-    // Unordered list items — rendered as flat <p> tags for Outlook compatibility
+    // Unordered list items — table-based indent for Outlook compatibility
     const ulMatch = line.match(/^(\s*)[-*+]\s+(.+)$/);
     if (ulMatch) {
       const spaces = ulMatch[1].length;
@@ -77,11 +77,20 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
       const content = ulMatch[2];
       const bullets = [settings.bulletL1, settings.bulletL2, settings.bulletL3];
       const bullet = bullets[Math.min(depth, 2)];
-      const indent = "&nbsp;&nbsp;&nbsp;&nbsp;".repeat(depth);
+      const indentPx = depth * 24;
 
-      htmlParts.push(
-        `<p style="margin:2px 0;">${indent}${bullet}&nbsp;${inlineFormat(content)}</p>`
-      );
+      if (depth === 0) {
+        htmlParts.push(
+          `<p style="margin:2px 0;">${bullet}&nbsp;${inlineFormat(content)}</p>`
+        );
+      } else {
+        htmlParts.push(
+          `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>` +
+          `<td style="width:${indentPx}px;"></td>` +
+          `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${bullet}&nbsp;${inlineFormat(content)}</td>` +
+          `</tr></table>`
+        );
+      }
       continue;
     }
 
@@ -89,19 +98,101 @@ export function markdownToHtml(md: string, settings: RtfCopySettings): string {
     const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/);
     if (olMatch) {
       // flush (no-op for flat rendering)
-      htmlParts.push(`<p style="margin:2px 0;margin-left:20px;">${inlineFormat(olMatch[2])}</p>`);
+      htmlParts.push(
+        `<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>` +
+        `<td style="width:24px;"></td>` +
+        `<td style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${inlineFormat(olMatch[2])}</td>` +
+        `</tr></table>`
+      );
+      continue;
+    }
+
+    // Markdown table
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|") &&
+        i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+      const tableResult = parseTable(lines, i, settings);
+      htmlParts.push(tableResult.html);
+      i = tableResult.endIndex;
       continue;
     }
 
     // Plain paragraph
-    // flush (no-op for flat rendering)
     htmlParts.push(`<p style="margin:4px 0;">${inlineFormat(line)}</p>`);
   }
 
-  // flush (no-op for flat rendering)
-
   const body = htmlParts.join("\n");
   return `<div style="font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;">${body}</div>`;
+}
+
+function parseTable(lines: string[], startIndex: number, settings: RtfCopySettings): { html: string; endIndex: number } {
+  const splitRow = (row: string): string[] =>
+    row.trim().slice(1, -1).split("|").map((c) => c.trim());
+
+  const headerCells = splitRow(lines[startIndex]);
+
+  // Parse alignments from separator row
+  const sepCells = splitRow(lines[startIndex + 1]);
+  const alignments = sepCells.map((s) => {
+    const t = s.trim();
+    if (t.startsWith(":") && t.endsWith(":")) return "center";
+    if (t.endsWith(":")) return "right";
+    return "left";
+  });
+
+  // Collect data rows
+  const dataRows: string[][] = [];
+  let endIndex = startIndex + 1;
+  for (let j = startIndex + 2; j < lines.length; j++) {
+    const row = lines[j].trim();
+    if (row.startsWith("|") && row.endsWith("|")) {
+      dataRows.push(splitRow(lines[j]));
+      endIndex = j;
+    } else {
+      break;
+    }
+  }
+
+  const cellStyle = (extra: string) =>
+    `border:1px solid #d0d0d0;padding:6px 8px;font-family:${settings.fontFamily},sans-serif;font-size:${settings.fontSize}pt;${extra}`;
+
+  const headerHtml = headerCells
+    .map((cell, idx) =>
+      `<th style="${cellStyle(`font-weight:bold;text-align:${alignments[idx] || "left"};`)}">${processCellContent(cell, settings)}</th>`
+    ).join("");
+
+  const bodyHtml = dataRows
+    .map((row) =>
+      "<tr>" + row.map((cell, idx) =>
+        `<td style="${cellStyle(`text-align:${alignments[idx] || "left"};`)}">${processCellContent(cell, settings)}</td>`
+      ).join("") + "</tr>"
+    ).join("");
+
+  const html =
+    `<table style="border-collapse:collapse;width:100%;margin:8px 0;">` +
+    `<thead><tr>${headerHtml}</tr></thead>` +
+    `<tbody>${bodyHtml}</tbody></table>`;
+
+  return { html, endIndex };
+}
+
+function processCellContent(cellText: string, settings: RtfCopySettings): string {
+  if (cellText.includes("<br>")) {
+    const parts = cellText.split(/<br\s*\/?>/i);
+    return parts.map((part) => processSingleLine(part, settings)).join("<br>");
+  }
+  return processSingleLine(cellText, settings);
+}
+
+function processSingleLine(text: string, settings: RtfCopySettings): string {
+  const trimmed = text.trimStart();
+  const match = trimmed.match(/^[-*+]\s+(.+)$/);
+  if (!match) return inlineFormat(text);
+
+  const leadingSpaces = text.length - trimmed.length;
+  const depth = leadingSpaces < 2 ? 0 : leadingSpaces < 4 ? 1 : 2;
+  const bullets = [settings.bulletL1, settings.bulletL2, settings.bulletL3];
+  return `${bullets[depth]}&nbsp;${inlineFormat(match[1])}`;
 }
 
 function inlineFormat(text: string): string {

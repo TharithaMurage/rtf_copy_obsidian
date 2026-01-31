@@ -4,6 +4,7 @@ import { markdownToHtml } from "./markdown-to-html";
 import { parseSections, SectionSuggestModal } from "./section-modal";
 import { injectBulletStyles, removeBulletStyles } from "./bullet-styles";
 import { RtfCopySettingTab } from "./settings-tab";
+import { registerTablePostProcessor } from "./table-post-processor";
 
 export default class RtfCopyPlugin extends Plugin {
   settings: RtfCopySettings = DEFAULT_SETTINGS;
@@ -19,6 +20,7 @@ export default class RtfCopyPlugin extends Plugin {
 
     this.addSettingTab(new RtfCopySettingTab(this.app, this));
     injectBulletStyles(this.settings);
+    registerTablePostProcessor(this, this.settings);
   }
 
   onunload(): void {
